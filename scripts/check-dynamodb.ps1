@@ -8,6 +8,18 @@ $env:AWS_PAGER = ""
 
 $endpoint = "http://localhost:4566"
 
+# Create table chat if id string if table chat does not exist
+Write-Host "Criando tabela chat..."
+aws dynamodb create-table `
+  --table-name chat `
+  --attribute-definitions AttributeName=id,AttributeType=S `
+  --key-schema AttributeName=id,KeyType=HASH `
+  --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 `
+  --endpoint-url $endpoint `
+  --region us-east-1 `
+  --output json
+
+
 Write-Host "Verificando ListTables..."
 aws dynamodb list-tables `
   --endpoint-url $endpoint `
@@ -29,5 +41,12 @@ aws dynamodb describe-table `
 if ($LASTEXITCODE -ne 0) {
   throw "DescribeTable falhou. Registre o erro antes de avançar."
 }
+
+#delete table chat
+# aws dynamodb delete-table `
+#   --table-name chat `
+#   --endpoint-url $endpoint `
+#   --region us-east-1 `
+#   --output json
 
 Write-Host "Consultas concluídas; nenhuma escrita foi realizada."

@@ -22,7 +22,8 @@
 - DynamoDB: gravação, listagem e remoção testadas anteriormente.
 - Tabela do experimento: chat
 - Prefixo dos recursos do curso: orderflow-dev
-
+- Container removido e recriado, mantendo o volume.
+- Item 172 recuperado com os mesmos dados.
 ## Pendências
 - Fixar a imagem do Floci por versão ou digest.
 - Aplicar a referência imutável no Compose do OrderFlow.
