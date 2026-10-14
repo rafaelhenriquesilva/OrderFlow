@@ -8,6 +8,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import FileUtil from "../../src/utils/file.util";
+import { HistoryRecord } from "../../src/entities/historyRecord";
 
 jest.mock("node:fs", () => {
   const actualFs = jest.requireActual<typeof import("node:fs")>("node:fs");
@@ -333,4 +334,33 @@ describe("FileUtil.getEligibleMigrationFiles", () => {
       `Failed to list migration files in "${filePath}":`,
     );
   });
+
+  /**
+   * Cenário	Verificação
+Salvar registros	readHistoryFile recupera os mesmos dados
+Pasta ausente	Pasta e arquivo são criados
+Histórico existente	Conteúdo é atualizado
+Lista vazia	Leitura retorna []
+Falha na escrita temporária	Erro contém o caminho; histórico anterior permanece
+Falha na renomeação	Erro é propagado; histórico anterior permanece
+   */
+  it("saves and reads history records correctly", () => {
+    const historyFilePath = join(folderPath, "history.json");
+    const records: HistoryRecord[] = [
+      {
+        migrationId: "001",
+        status: "pending",
+      },
+      {
+        migrationId: "002",
+        status: "running",
+        startedAt: "2026-10-05T20:00:00.000Z",
+      },
+    ];
+
+    FileUtil.saveHistoryFile(historyFilePath, records);
+
+    const readRecords = FileUtil.readHistoryFile(historyFilePath);
+    expect(readRecords).toEqual(records);
+  })
 });

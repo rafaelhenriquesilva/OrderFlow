@@ -1,6 +1,5 @@
-import { get } from "node:http";
 import { HistoryRecord } from "../entities/historyRecord";
-import { readdirSync, readFileSync } from "node:fs";
+import { readdirSync, readFileSync, mkdirSync, writeFileSync, renameSync } from "node:fs";
 export default class FileUtil {
   static readHistoryFile(filePath: string): HistoryRecord[] {
     let fileContent: string;
@@ -145,12 +144,7 @@ export default class FileUtil {
     }
   }
 
-  // Dentro da classe FileUtil:
   static getEligibleMigrationFiles(folderPath: string): string[] {
-    let entries: ReturnType<typeof readdirSync>;
-
-    // A opção withFileTypes tem um retorno específico; usamos
-    // o bloco abaixo para preservar a inferência do TypeScript.
     try {
       const files = readdirSync(folderPath, { withFileTypes: true });
       const migrations: { prefix: number; name: string }[] = [];
@@ -194,4 +188,27 @@ export default class FileUtil {
       );
     }
   }
-}
+  
+  static saveHistoryFile(filePath: string, records: HistoryRecord[]): void {
+    const { dirname } = require("node:path");
+
+    try {
+      // Create the destination folder if it doesn't exist
+      mkdirSync(dirname(filePath), { recursive: true });
+
+      // Serialize the history as readable JSON
+      const jsonContent = JSON.stringify(records, null, 2);
+
+      // Write to a temporary file first
+      const tempFilePath = `${filePath}.tmp`;
+      writeFileSync(tempFilePath, jsonContent, "utf-8");
+
+      // Rename the temporary file to the final file
+      renameSync(tempFilePath, filePath);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to save history file "${filePath}": ${message}`);
+    }
+  }
+  
+  }

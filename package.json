@@ -6,6 +6,7 @@
     "doc": "docs"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1151.0",
     "accepts": "^2.0.0",
     "body-parser": "^2.3.0",
     "bytes": "^3.1.2",
